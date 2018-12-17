@@ -109,7 +109,7 @@ if settings.autoguess:
         nlax.text(fit_dict['fit']['mode_freqs']['init_guess'][i]+0.1,nlax.get_ylim()[1]-0.2, str(fit_dict['fit']['enns'][i]))
         nlax.text(fit_dict['fit']['mode_freqs']['init_guess'][i]+0.1,nlax.get_ylim()[1]-0.4, str(fit_dict['fit']['ells'][i]))
 
-    write_output_file(fit_dict,settings, True)
+    write_init_file(fit_dict, settings, True)
 
     print """Saving diagnostics figures for the background fit."""
     for i,fig in enumerate(diag_figs):
@@ -123,8 +123,6 @@ elif settings.peakbagging:
     print('Starting PME in %s mode on %s' % ('peakbagging', settings.star))
 
     fit_dict = get_fit_dict(settings)
-
-    print settings.output
 
     if settings.mcmc_burnt:
         settings_ = fit_dict['settings']
@@ -150,7 +148,7 @@ elif settings.peakbagging:
     	    fit_dict['spectrum']['freq'] = fit_dict['spectrum']['freq'][idx_fcut]  
     	    fit_dict['spectrum']['power'] = fit_dict['spectrum']['power'][idx_fcut] 
     	    fit_dict['spectrum']['model']['bkg'] = fit_dict['spectrum']['model']['bkg'][idx_fcut]           
-	    fit_dict['spectrum']['model']['peakbagging'] = fit_dict['spectrum']['model']['peakbagging'][idx_fcut]           
+	    #fit_dict['spectrum']['model']['peakbagging'] = fit_dict['spectrum']['model']['peakbagging'][idx_fcut]           
 
     if settings.ask_prior:
         print """To add a prior, add '-prior myprior.prior' to the -peakbagging call. 'myprior' must be one of the following paramter names:"""

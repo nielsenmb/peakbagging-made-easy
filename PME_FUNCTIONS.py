@@ -286,9 +286,9 @@ def savefit(sampler, substeps, fit_dict, settings):
 
         mode_pars_percs = np.percentile(mode_pars,percentages[1:4], axis = 2) # perc, par, mode
 
-        out_arr = np.array([enns,
-                            ells,
-                            mode_pars_percs[1,0,:],
+        out_arr = np.array([enns[emms == 0],
+			    ells[emms == 0],
+			    mode_pars_percs[1,0,:],
                             mode_pars_percs[2,0,:]-mode_pars_percs[1,0,:],
                             mode_pars_percs[1,0,:]-mode_pars_percs[0,0,:],
                             mode_pars_percs[1,1,:],
@@ -303,7 +303,7 @@ def savefit(sampler, substeps, fit_dict, settings):
 
         hdr = 'enn, ell, Mode frequency [muHz], Mode frequency +error [muHz], Mode frequency -error [muHz], Mode height [ppm^2/muHz], Mode height +error [ppm^2/muHz], Mode height -error [ppm^2/muHz], Mode width [muHz], Mode width +error [muHz], Mode width -error [muHz]'
         
-        np.savetxt(fname,out_arr, header = hdr, delimiter = ',')
+        np.savetxt(fname,out_arr, header = hdr, delimiter=',', fmt = '%i,%i,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f')
             
 
     return fit_dict['fit']['last_chain_state']
@@ -843,7 +843,7 @@ def test_objective(p, f, x, y, current_model):
     return -lnlike(simple_lorentzian(p, f, x)+current_model, y)
 
 def simple_lorentzian(p, f, x):
-    p0,p1,p2 = exp(p)
+    p0,p1 = np.exp(p)
     return p0 / p1 / (1.0 + (2.0*(x-f)/p1)**2.0)
 
 def divide_out_peak(x, y, model, smth, f, significance):
@@ -1750,9 +1750,11 @@ def plot_lnprobabilities(fit_dict, settings):
     walkers and all steps in the MCMC chain. Convergence toward the global maximum
     is indicated by the median (thick solid line) tending toward a low constant value."""
     
+
     probfig = plt.figure(figsize = (15, 15))
     ax_prob = probfig.add_subplot(111) 
     probs   = fit_dict['fit']['lnprobabilities']
+    print np.shape(fit_dict['fit']['steps']), np.shape(probs)
     ax_prob.loglog(fit_dict['fit']['steps'],-probs, color = 'k')
     ax_prob.loglog(fit_dict['fit']['steps'],-probs[:,2], color = 'r', lw = 6)
     ax_prob.set_ylabel('-log probability')
