@@ -378,6 +378,7 @@ def setup_parameters(fit_dict, settings):
     current dimensions of the parameter space and the number of walkers match the
     those of the last run, the final positions of the walkers will be used as the
     initial starting points for the current run."""
+    
     if settings.mcmc_burnt:
 
         print('Trying to load last chain position...')
@@ -385,6 +386,7 @@ def setup_parameters(fit_dict, settings):
         llim, ulim = np.array([]), np.array([])
         for key in fit_dict['parameter_keys']['mode_fit_keys']+fit_dict['parameter_keys']['bkg_keys']:
             llim, ulim = np.append(llim, fit_dict['fit'][key]['llim']), np.append(ulim, fit_dict['fit'][key]['ulim'])
+
         if np.shape(pos) != (settings.mcmc_wlkrs, fit_dict['fit']['ndim']):
             print("Number of walkers and/or fit dimensions don't match previous chain state.")
             print("Exiting...")
