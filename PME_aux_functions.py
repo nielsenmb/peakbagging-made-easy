@@ -58,8 +58,8 @@ def ready_set_go(dict_initvals, set_lims, Npars, Nwalkers, scatter, zero_check =
     along that parameter space axis. The lower and upper limits are also return in the form of a 1D list."""
 
     if ((len(set_lims[0]) != Npars) and (len(set_lims[0]) != 1)) or ((len(set_lims[1]) != Npars) and (len(set_lims[1]) != 1)):
-        print 'Error: The number of provided limits should be either 1 or equal to the size of the parameter group in question.'
-        print 'Exiting...'
+        print('Error: The number of provided limits should be either 1 or equal to the size of the parameter group in question.')
+        print('Exiting...')
         sys.exit()
 
     if relative == True:
@@ -89,7 +89,7 @@ def ready_set_go(dict_initvals, set_lims, Npars, Nwalkers, scatter, zero_check =
         pos = np.array([[np.random.uniform(max(l[i], dict_initvals[i]*(1.0-scatter)),
                                            min(u[i], dict_initvals[i]*(1.0+scatter))) for i in range(Npars)] for i in range(Nwalkers)])
     else:
-	print "Sure you want the scatter to be type %s? Doesn't seem to work." % (type(scatter))
-	print "If you want different scatter percentages for different parameters"
+        print("Sure you want the scatter to be type %s? Doesn't seem to work." % (type(scatter)))
+        print("If you want different scatter percentages for different parameters")
 
     return pos, l, u

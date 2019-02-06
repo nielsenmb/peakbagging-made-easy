@@ -18,54 +18,56 @@ from PME_mode_inclination_parameterization import *
                                      
 
 def get_me_this_file(settings, name = '', ext = ''):
+    # Is name a full path name?
+    if os.path.isfile(name):
+        return name
 
-   # Is name a full path name?
-   if os.path.isfile(name):
-       return name
+    elif not os.path.isdir(settings.directory):
+        print("""%s does not appear to be a directory. Kind of hard to find the correct file if you don't give me the right directory.""" % (settings.directory))
+        print("""Exiting...""")
+        sys.exit()
 
-   elif not os.path.isdir(settings.directory):
-      print """%s does not appear to be a directory. Kind of hard to find the correct file if you don't give me the right directory.""" % (settings.directory)
-      print """Exiting..."""
-      sys.exit()
+    elif os.path.isdir(settings.directory) and (len(name) > 0):
+        # Is it a basename?
+        if os.path.isfile(os.path.join(settings.directory, name)):
+            return os.path.join(settings.directory, name)
+        # Does it contain a wildcard?
+        elif '*' in name:
+            fname =  glob.glob(os.path.join(settings.directory, name))
+            if len(fname) == 0:
+                print("""Couldn't find any files with the wildcard %s in %s.""") % (name, settings.directory)
+                print('Exiting...')
+                sys.exit()
+            elif len(fname) > 1:
+                fname =  glob.glob(os.path.join(settings.directory, settings.star+ext))
+                if len(fname) > 1: 
+                    print("""WARNING: multiple files with wildcard %s%s were found in %s.""" % (name,ext,settings.directory))
+                return fname[0]
+            else:
+                return fname[0]
+        else:
+            print("""The provided input: %s, does not appear to exist in %s as either a filename or wildcard""" % (name,settings.directory))
 
-   elif os.path.isdir(settings.directory) and (len(name) > 0):
-       # Is it a basename?
-       if os.path.isfile(os.path.join(settings.directory, name)):
-           return os.path.join(settings.directory, name)
-       # Does it contain a wildcard?
-       elif '*' in name:
-	   fname =  glob.glob(os.path.join(settings.directory, name))
-	   if len(fname) == 0:
-               print("""Couldn't find any files with the wildcard %s in %s.""") % (name, settings.directory)
-               print('Exiting...')
-               sys.exit()
-	   elif len(fname) > 1:
-               fname =  glob.glob(os.path.join(settings.directory, settings.star+ext))
-	       if len(fname) > 1: print """WARNING: multiple files with wildcard %s%s were found in %s.""" % (name,ext,settings.directory)
-	       return fname[0]
-	   else:
-	       return fname[0]
-       else:
-           print """The provided input: %s, does not appear to exist in %s as either a filename or wildcard""" % (name,settings.directory)
-
-   #Otherwise, search the directory for anything with the extension.
-   elif os.path.isdir(settings.directory) and len(ext) > 0:
-       if '*' not in ext: ext = '*'+ext
-       fname =  glob.glob(os.path.join(settings.directory, ext))
-       if len(fname) == 0:
-           print("""Couldn't find any files with extension %s in %s.""") % (ext, settings.directory)
-           print('Exiting...')
-           sys.exit()
-       elif len(fname) > 1:
-           fname =  glob.glob(os.path.join(settings.directory, settings.star+ext))
-	   if len(fname) > 1: print """WARNING: multiple files with extension %s were found.""" (ext)
-	   return fname[0]
-       else:
-	   return fname[0]
-   else:
-       print """The provided input name: %s, does not appear to exist in %s as either a filename or wildcard""" % (name,settings.directory)
-       print """Exiting..."""
-       sys.exit()
+    #Otherwise, search the directory for anything with the extension.
+    elif os.path.isdir(settings.directory) and len(ext) > 0:
+        if '*' not in ext: 
+            ext = '*'+ext
+        fname =  glob.glob(os.path.join(settings.directory, ext))
+        if len(fname) == 0:
+            print("""Couldn't find any files with extension %s in %s.""") % (ext, settings.directory)
+            print('Exiting...')
+            sys.exit()
+        elif len(fname) > 1:
+            fname =  glob.glob(os.path.join(settings.directory, settings.star+ext))
+            if len(fname) > 1: 
+                print("""WARNING: multiple files with extension %s were found.""" % (ext))
+            return fname[0]
+        else:
+            return fname[0]
+    else:
+        print("""The provided input name: %s, does not appear to exist in %s as either a filename or wildcard""" % (name,settings.directory))
+        print("""Exiting...""")
+        sys.exit()
 
 
 def add_priors(fit_dict, settings):
@@ -90,17 +92,18 @@ def add_priors(fit_dict, settings):
     # If prior requests were found in the input line, the request is first
     # compared to the fit dictionary to see if the variable exists.
     if settings.prior is not None:
-        print """Comparing requested prior to list of parameter names in %s_output.npz""" % (settings.star)
+        print("""Comparing requested prior to list of parameter names in %s_output.npz""" % (settings.star))
         for line in settings.prior:
             if '.prior' in line:
                 line = line[:-6]
 
             # The requested prior name must match the dictionary entry key.
             if line not in fit_dict['parameter_keys']['mode_fit_keys'] + fit_dict['parameter_keys']['bkg_keys']:
-                print """WARNING: %s was not found in the *_output.npz dictionary, perhaps you misspelled it.""" % (line)
-                print """Here are the names of the parameters for which a prior can be applied:"""
-                for key in fit_dict['parameter_keys']['mode_fit_keys']+fit_dict['parameter_keys']['bkg_keys']: print key
-                print """Exiting..."""
+                print("""WARNING: %s was not found in the *_output.npz dictionary, perhaps you misspelled it.""" % (line))
+                print("""Here are the names of the parameters for which a prior can be applied:""")
+                for key in fit_dict['parameter_keys']['mode_fit_keys']+fit_dict['parameter_keys']['bkg_keys']: 
+                    print(key)
+                print("""Exiting...""")
                 sys.exit()
 
             # If the variables in the request matches a variable in the
@@ -117,30 +120,30 @@ def add_priors(fit_dict, settings):
             # prior to a single variable in the entry. The requested prior name
             # must match the dictionary entry key, and needs to report any
             # errors too.
-            print """Found %s, lets see if we can read it...""" % (os.path.basename(fname[0]))
+            print("""Found %s, lets see if we can read it...""" % (os.path.basename(fname[0])))
             try:
                 P = np.genfromtxt(fname[0])
                 x, pofx = P[:, 0::2], P[:, 1::2]
             except:
-                print """Hmmm...something went wrong when reading the priors
+                print("""Hmmm...something went wrong when reading the priors
                 file for %s. Make sure the file contains a column for the axis
                 on which the prior is defined, and one or more columns with
-                probabilities of the relevant prior.""" % (line)
-                print """Exiting..."""
+                probabilities of the relevant prior.""" % (line))
+                print("""Exiting...""")
                 sys.exit()
-            print """Success!!"""
+            print("""Success!!""")
 
             # Check to see if the number of columns in the prior file match the
             # number 'npars' of the variables in the entry
             if np.shape(pofx)[1] != fit_dict['fit'][line]['npars']:
-                print """The parameterization of %s has n=%s variables, but the
+                print("""The parameterization of %s has n=%s variables, but the
                 provided prior array is not of the same size. The provided
                 prior array must have n+1 columns (1st column is the axis on
                 which the prior is defined). See the -help for information
                 about how the prior of each parameter should be defined. For
                 variables without a prior, simply replace the corresponding
-                column with zeros."""  % (line, str(fit_dict['fit'][line]['npars']))
-                print """Exiting..."""
+                column with zeros."""  % (line, str(fit_dict['fit'][line]['npars'])))
+                print("""Exiting...""")
                 sys.exit()
 
             # If all checks are passed the prior is interpolated over on a
@@ -169,7 +172,7 @@ def add_priors(fit_dict, settings):
 
                     fit_dict['fit'][line]['prior'].append([np.vstack((xn, prr))])
 
-        print 'Done adding priors'
+        print('Done adding priors')
 
     # The contents of the 'prior' key in the list of variable entries is copied
     # to a list outside the dictionary. This is what is actually passed to the
@@ -213,7 +216,7 @@ def savefit(sampler, substeps, fit_dict, settings):
         try:
             L = np.percentile(lnprobs,percentages)
         except:
-            print "Inf/nan values in lnprob"
+            print("Inf/nan values in lnprob")
             L = np.ones(5)*1e-20
 
         if np.size(fit_dict['fit']['lnprobabilities']) == 0:
@@ -380,7 +383,6 @@ def setup_parameters(fit_dict, settings):
     initial starting points for the current run."""
     
     if settings.mcmc_burnt:
-
         print('Trying to load last chain position...')
         pos = fit_dict['fit']['last_chain_state']
         llim, ulim = np.array([]), np.array([])
@@ -411,13 +413,13 @@ def setup_parameters(fit_dict, settings):
         fit_dict['fit']['x_emms'] = np.hstack(np.array([[x for x in np.arange(2*l+1)-l] for l in fit_dict['fit']['ells']])).astype(int)
 
         if settings.mcmc_wlkrs%2 != 0:
-            print """WARNING: Number of walkers must be even."""
-            print """The current number of walkers is %i, adding 1 walker to compensate.""" % (settings.mcmc_walkers)
+            print("""WARNING: Number of walkers must be even.""")
+            print("""The current number of walkers is %i, adding 1 walker to compensate.""" % (settings.mcmc_walkers))
             settings.mcmc_wlkrs += 1
 
-	# These functions compute the initial random positions of the walkers.
-	# Also updates the llim and ulim keys in the fit_dict.
-	param_funcs = [mode_frequency_parameterization,
+    # These functions compute the initial random positions of the walkers.
+    # Also updates the llim and ulim keys in the fit_dict.
+    param_funcs = [mode_frequency_parameterization,
 	 	           mode_height_parameterization,
 	 	           mode_width_parameterization,
 		           mode_splitting_parameterization,
@@ -427,35 +429,35 @@ def setup_parameters(fit_dict, settings):
 		           harvey_powers_parameterization,
 		           white_noise_parameterization]
 
-	# Calls each function in param_funcs, thereby updating the llim and ulim
-	# keys in the fit_dict and combines all the fit parameters into a single list
-	pos = np.concatenate(tuple(pfunc(fit_dict,settings) for pfunc in param_funcs), axis = 1)
+    # Calls each function in param_funcs, thereby updating the llim and ulim
+    # keys in the fit_dict and combines all the fit parameters into a single list
+    pos = np.concatenate(tuple(pfunc(fit_dict,settings) for pfunc in param_funcs), axis = 1)
 
-        llim, ulim = np.array([]), np.array([])
+    llim, ulim = np.array([]), np.array([])
 
-	fit_dict['fit']['ndim'] = 0
+    fit_dict['fit']['ndim'] = 0
 
-        for key in fit_dict['parameter_keys']['mode_fit_keys']+fit_dict['parameter_keys']['bkg_keys']:
+    for key in fit_dict['parameter_keys']['mode_fit_keys']+fit_dict['parameter_keys']['bkg_keys']:
 
-            llim, ulim = np.append(llim, fit_dict['fit'][key]['llim']), np.append(ulim, fit_dict['fit'][key]['ulim'])
+        llim, ulim = np.append(llim, fit_dict['fit'][key]['llim']), np.append(ulim, fit_dict['fit'][key]['ulim'])
 
 	    # Counting up the number of dimensions of the fit, based on the parameterized variables
-            fit_dict['fit']['ndim'] += fit_dict['fit'][key]['npars']
+        fit_dict['fit']['ndim'] += fit_dict['fit'][key]['npars']
 
-            # reset chain, chain percentiles
-            fit_dict['fit'][key]['chain'] = np.array([])
-            fit_dict['fit'][key]['chain_percentiles'] = np.array([])
+        # reset chain, chain percentiles
+        fit_dict['fit'][key]['chain'] = np.array([])
+        fit_dict['fit'][key]['chain_percentiles'] = np.array([])
 
-        # reset likelihoods
-        fit_dict['fit']['lnprobabilities'] = np.array([])
-	fit_dict['fit']['steps'] = np.array([])
+    # reset likelihoods
+    fit_dict['fit']['lnprobabilities'] = np.array([])
+    fit_dict['fit']['steps'] = np.array([])
 
-        if settings.mcmc_wlkrs < 2*fit_dict['fit']['ndim']:
-            print """WARNING: EMCEE requires at least twice the number of walkers as fit parameters, and that the number of walkers is even."""
-            print """The current number of parameters in the fit is: %i""" % (fit_dict['fit']['ndim'])
-            print """Adjust the -mcmc_walkers setting to at least %i and run PME again in -peakbagging mode.""" % (fit_dict['fit']['ndim']*2)
-            print """Exiting..."""
-            sys.exit()
+    if settings.mcmc_wlkrs < 2*fit_dict['fit']['ndim']:
+        print("""WARNING: EMCEE requires at least twice the number of walkers as fit parameters, and that the number of walkers is even.""")
+        print("""The current number of parameters in the fit is: %i""" % (fit_dict['fit']['ndim']))
+        print("""Adjust the -mcmc_walkers setting to at least %i and run PME again in -peakbagging mode.""" % (fit_dict['fit']['ndim']*2))
+        print("""Exiting...""")
+        sys.exit()
 
     return pos, llim, ulim
 
@@ -474,8 +476,8 @@ def peakbagging(pos, llim, ulim, priors, fit_dict, settings):
                                     threads = settings.mcmc_thrds)
 
     if not settings.mcmc_burnt:
-	print "Saving dictionary with initial setup"
-	np.savez(os.path.join(settings.directory, settings.star+'_output.npz'), fit_dict = fit_dict)
+        print("Saving dictionary with initial setup")
+        np.savez(os.path.join(settings.directory, settings.star+'_output.npz'), fit_dict = fit_dict)
 
     """Office of Silly Steps, department of Ministry of Silly Walks"""
     if settings.mcmc_substps == 0:
@@ -489,20 +491,20 @@ def peakbagging(pos, llim, ulim, priors, fit_dict, settings):
     elif settings.mcmc_substps > 0:
         print('Running sampler in chunks')
         steps, substeps = settings.mcmc_stps, settings.mcmc_substps
-    	if settings.mcmc_stps < settings.mcmc_substps:
-           print("Substep number must be <= than total number of steps.")
-           print("Exiting...")
-           sys.exit()
+        if settings.mcmc_stps < settings.mcmc_substps:
+            print("Substep number must be <= than total number of steps.")
+            print("Exiting...")
+            sys.exit()
         if settings.samples >= settings.mcmc_stps:
-           print("sample_posterior number must be <= than total number of steps.")
-           print("Exiting...")
-           sys.exit()
+            print("sample_posterior number must be <= than total number of steps.")
+            print("Exiting...")
+            sys.exit()
         elif settings.samples >= settings.mcmc_substps:
-           print("sample_posterior number must be <= total number of substeps.")
-           print("Exiting...")
-           sys.exit()
+            print("sample_posterior number must be <= total number of substeps.")
+            print("Exiting...")
+            sys.exit()
     else:
-	print "You requested negative substeps?!? This is unpossible! Goodbye..."
+        print("You requested negative substeps?!? This is unpossible! Goodbye...")
         sys.exit()
 
     t1 = tm.time()
@@ -717,7 +719,7 @@ def identify_input():
                                                        (must be even), and at least 2x number of
                                                        of variables in the fit. (AG,PB)"""                        , type = int, dest = 'mcmc_wlkrs', default = 100)
     p.add_argument('-mcmc_threads'              , help="""Number of threads to use for computing
-                                                       the MCMC chains. (AG,PB)"""                                , type = int, dest = 'mcmc_thrds', default = 8)
+                                                       the MCMC chains. (AG,PB)"""                                , type = int, dest = 'mcmc_thrds', default = 4)
     p.add_argument('-mcmc_burnt','-b'           , help="""Flag to use previously computed
                                                        walker positions. Used for splitting up
                                                        very long runs if a maximum computing time
@@ -888,8 +890,8 @@ def add_peaks(idx, fit_dict, settings):
     significance, N_smooth = np.inf, 5000
 
     dx, M = np.median(np.diff(f)), min(len(f), N_smooth)
-
-    window = simple_lorentzian([1.0, 0.2], f[M/2], f[:M])
+    
+    window = simple_lorentzian([1.0, 0.2], f[int(M/2)], f[:M])
 
     model = fit_dict['spectrum']['model']['bkg'].copy()
 
@@ -911,7 +913,7 @@ def add_peaks(idx, fit_dict, settings):
 
     if not settings.refit:
 
-	print """Finding the peaks in the spectrum..."""
+        print("""Finding the peaks in the spectrum...""")
 
         significance = np.inf
 
@@ -919,7 +921,7 @@ def add_peaks(idx, fit_dict, settings):
 
         dx, M = np.median(np.diff(x)), min(len(x), N_smooth)
 
-        window = simple_lorentzian([1.0, 0.2], x[M/2], x[:M])
+        window = simple_lorentzian([1.0, 0.2], x[int(M/2)], x[:M])
 
         while significance >= settings.min_sign:
 
@@ -941,7 +943,7 @@ def add_peaks(idx, fit_dict, settings):
     for k in ['enns', 'ells', 'emms']: fit_dict['fit'][k] = fit_dict['fit'][k][sidx]
     for k in ['mode_freqs', 'mode_heights', 'mode_widths']: fit_dict['fit'][k]['init_guess'] = fit_dict['fit'][k]['init_guess'][sidx]
 
-    print """Found a total of %i peaks""" % (len(fit_dict['fit']['mode_freqs']['init_guess']))
+    print("""Found a total of %i peaks""" % (len(fit_dict['fit']['mode_freqs']['init_guess'])))
 
     #==============================================================================
     # if running in refit mode, PME re-assigns enns and writes the contents of
@@ -1094,16 +1096,16 @@ def check_for_added_peaks(fit_dict, settings):
         fit_dict['fit']['enns'] = np.zeros_like(fit_dict['fit']['ells'], dtype = int)
 
     elif (len(settings.add_peaks) == 0) and (settings.refit == True):
-        print 'Loading previous *initial_guesses.txt'
-	fname = get_me_this_file(settings, name = settings.star+'_initial_guesses.txt', ext = '*_initial_guesses.txt')
+        print('Loading previous *initial_guesses.txt')
+        fname = get_me_this_file(settings, name = settings.star+'_initial_guesses.txt', ext = '*_initial_guesses.txt')
         fit_dict['fit']['enns'], fit_dict['fit']['ells'], fit_dict['fit']['mode_freqs']['init_guess'] = np.genfromtxt(fname, usecols = [0, 1, 2]).T
-	fit_dict['fit']['enns'], fit_dict['fit']['ells'] = fit_dict['fit']['enns'].astype(int), fit_dict['fit']['ells'].astype(int)
+        fit_dict['fit']['enns'], fit_dict['fit']['ells'] = fit_dict['fit']['enns'].astype(int), fit_dict['fit']['ells'].astype(int)
 
     elif (len(settings.add_peaks) > 0) and (settings.refit == True):
-        print """Cannot use -refit and -add_peaks at the same time. If you are adding peaks you can either add
+        print("""Cannot use -refit and -add_peaks at the same time. If you are adding peaks you can either add
         them in the input line as l,nu,l,nu or vice versa, or add them to the *initial_guesses.txt as -1 l nu 1 1 1 1,
-        with one peak per line. If you added the peaks to *initial_guesses.txt you must re-run with the -refit option ."""
-        print """Exiting..."""
+        with one peak per line. If you added the peaks to *initial_guesses.txt you must re-run with the -refit option .""")
+        print("""Exiting...""")
         sys.exit()
 
     fit_dict['fit']['emms']                       = np.zeros_like(fit_dict['fit']['mode_freqs']['init_guess'],dtype = int)
@@ -1194,7 +1196,7 @@ def define_freq_interval(fit_dict, settings):
     local minima of the smoothed spectrum, in between the l=2,0 pair and the l=1
     mode."""
 
-    print """Attempting to define the fit interval..."""
+    print("""Attempting to define the fit interval...""")
 
     freq, power = fit_dict['spectrum']['freq'],fit_dict['spectrum']['power']
 
@@ -1215,16 +1217,11 @@ def define_freq_interval(fit_dict, settings):
         pllim, pulim = new_freqs[0]-fit_dict['star']['Del_nu']/2.0, new_freqs[-1]+fit_dict['star']['Del_nu']/2.0
 
     elif settings.peakbagging:
-
         new_freqs = sorted(fit_dict['fit']['mode_freqs']['init_guess'])
-
-        pllim, pulim = new_freqs[0]-fit_dict['star']['Del_nu']/2.0, new_freqs[-1]+fit_dict['star']['Del_nu']/2.0
-	
-	idx_cr = fit_dict['spectrum']['model']['bkg']-fit_dict['spectrum']['model']['bkg'][-1] > fit_dict['spectrum']['model']['bkg'][-1]
-
-	fcut = max([max(new_freqs),fit_dict['spectrum']['freq'][idx_cr][-1]])+2000
-	
-	return fcut
+        pllim, pulim = new_freqs[0]-fit_dict['star']['Del_nu']/2.0, new_freqs[-1]+fit_dict['star']['Del_nu']/2.0	
+        idx_cr = fit_dict['spectrum']['model']['bkg']-fit_dict['spectrum']['model']['bkg'][-1] > fit_dict['spectrum']['model']['bkg'][-1]
+        fcut = max([max(new_freqs),fit_dict['spectrum']['freq'][idx_cr][-1]])+2000
+        return fcut
 
     else:
         # If the number of requested radial orders is <=100 it is assumed that they are in fact radial orders and not frequency limits
@@ -1240,13 +1237,14 @@ def define_freq_interval(fit_dict, settings):
 
     idx = between(freq, pllim, pulim)
 
-    print """Mode search interval: %.0fmuHz to %.0fmuHz""" % (round(freq[idx][0]),round(freq[idx][-1]))
+    print("""Mode search interval: %.0fmuHz to %.0fmuHz""" % (round(freq[idx][0]),round(freq[idx][-1])))
 
     return idx
 
 
 def smooth(x, t = None, window_len=9):
     """Smoothing function using the scipy gaussian_filter1d function."""
+
     # Various checks for the input vector
     if type(x) == type([]):
         x = np.array(x)
@@ -1257,7 +1255,7 @@ def smooth(x, t = None, window_len=9):
     if x.size < window_len:
         raise ValueError("Input vector needs to be bigger than window size.")
 
-    x_smth = gaussian_filter1d(x, window_len)
+    x_smth = gaussian_filter1d(x, int(window_len))
 
     return x_smth
 
@@ -1376,7 +1374,7 @@ def get_dnu_numax(fit_dict, settings):
     """A function for computing the large separation and nu_max for a solar-like
     oscillator. Can't remember exactly how it works, but it takes a section
     the spectrum and correlates it with the rest of the spectrum"""
-    print """Attempting to find nu_max and the large separation"""
+    print("""Attempting to find nu_max and the large separation""")
 
     f, p = fit_dict['spectrum']['freq'],fit_dict['spectrum']['power']
 
@@ -1391,6 +1389,7 @@ def get_dnu_numax(fit_dict, settings):
         f, p = f[::n], p[::n]
 
         df = np.median(np.diff(f))
+        
 
         S, B = np.zeros_like(f), np.zeros_like(f)
 
@@ -1439,7 +1438,7 @@ def get_dnu_numax(fit_dict, settings):
     else:
         fit_dict['star']['Del_nu'] = settings.l_sep
 
-    print 'Guessed nu_max = %.2f muHz and large separation = %.2f muHz' % (round(fit_dict['star']['nu_max'],2),round(fit_dict['star']['Del_nu'],2))
+    print('Guessed nu_max = %.2f muHz and large separation = %.2f muHz' % (round(fit_dict['star']['nu_max'],2),round(fit_dict['star']['Del_nu'],2)))
     return fit_dict['star']['Del_nu'], fit_dict['star']['nu_max']
 
 
@@ -1695,7 +1694,7 @@ def noiselevel(y, verbose = False):
     noise = np.mean(y[-100:])
 
     if verbose:
-        print'Noise level estimate: %0.3f ' % round(noise,2)
+        print('Noise level estimate: %0.3f ' % round(noise,2))
 
     return noise
 
@@ -1756,7 +1755,6 @@ def plot_lnprobabilities(fit_dict, settings):
     probfig = plt.figure(figsize = (15, 15))
     ax_prob = probfig.add_subplot(111) 
     probs   = fit_dict['fit']['lnprobabilities']
-    print np.shape(fit_dict['fit']['steps']), np.shape(probs)
     ax_prob.loglog(fit_dict['fit']['steps'],-probs, color = 'k')
     ax_prob.loglog(fit_dict['fit']['steps'],-probs[:,2], color = 'r', lw = 6)
     ax_prob.set_ylabel('-log probability')

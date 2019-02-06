@@ -70,10 +70,10 @@ if settings.autoguess:
         # separation is used later in the mode indentification scheme.
         get_dnu_numax(fit_dict, settings)
 
-        print """Finding initial guesses for the background terms"""
+        print("""Finding initial guesses for the background terms""")
         diag_figs = background_fit(fit_dict, settings)
 
-        print """Saving background results to %s""" % (os.path.join(settings.directory,settings.star+'_output.npz'))
+        print("""Saving background results to %s""" % (os.path.join(settings.directory,settings.star+'_output.npz')))
         np.savez(os.path.join(settings.directory,settings.star+'_output.npz'), fit_dict = fit_dict)
 
     else:
@@ -84,7 +84,7 @@ if settings.autoguess:
     #==============================================================================
     # Identify peaks in p-mode envelope
     #==============================================================================
-    print """Starting mode identification... wish me luck!"""
+    print("""Starting mode identification... wish me luck!""")
 
     check_for_added_peaks(fit_dict,settings)
 
@@ -111,12 +111,12 @@ if settings.autoguess:
 
     write_init_file(fit_dict, settings, True)
 
-    print """Saving diagnostics figures for the background fit."""
+    print("""Saving diagnostics figures for the background fit.""")
     for i,fig in enumerate(diag_figs):
         fig.savefig(os.path.join(settings.directory,settings.star+'_diag_%i.png' %(i)))
 
 
-    print """Autoguess is done. Have a nice day"""
+    print("""Autoguess is done. Have a nice day""")
 
 
 elif settings.peakbagging:
@@ -131,6 +131,9 @@ elif settings.peakbagging:
         settings_.samples = settings.samples
         settings_.mcmc_stps = settings.mcmc_stps
         settings_.mcmc_substps = settings.mcmc_substps
+        settings_.mcmc_wlkrs = settings.mcmc_wlkrs
+        settings_.autoguess = False
+        settings_.peakbagging = True
         settings_.output = False
         settings = settings_
  
@@ -151,9 +154,10 @@ elif settings.peakbagging:
 	    #fit_dict['spectrum']['model']['peakbagging'] = fit_dict['spectrum']['model']['peakbagging'][idx_fcut]           
 
     if settings.ask_prior:
-        print """To add a prior, add '-prior myprior.prior' to the -peakbagging call. 'myprior' must be one of the following paramter names:"""
-        for key in fit_dict['parameter_keys']['mode_fit_keys']+fit_dict['parameter_keys']['bkg_keys']: print key+'.prior'
-        print """Example: python /my/directory tabbysstar -peakbagging -prior mode_splittings.prior"""
+        print("""To add a prior, add '-prior myprior.prior' to the -peakbagging call. 'myprior' must be one of the following paramter names:""")
+        for key in fit_dict['parameter_keys']['mode_fit_keys']+fit_dict['parameter_keys']['bkg_keys']: 
+            print(key+'.prior')
+        print("""Example: python /my/directory tabbysstar -peakbagging -prior mode_splittings.prior""")
         sys.exit()
 
     priors = add_priors(fit_dict,settings)
@@ -164,7 +168,7 @@ elif settings.peakbagging:
 elif settings.plot:
     print('Starting PME in %s mode on %s' % ('plotting', settings.star))
 
-    print """Trying to get model spectrum parameters from %s""" % (settings.star)
+    print("""Trying to get model spectrum parameters from %s""" % (settings.star))
     fit_dict = get_fit_dict(settings)
 
     plot_best_fit(fit_dict, fit_dict['settings'])
@@ -200,7 +204,7 @@ elif settings.output:
     peakbagging(pos, llim, ulim, priors, fit_dict, settings)
     
 else:
-    print """No mode for PME selected. Please select either -autoguess, -peakbagging, -plot, or -output."""
-    print """Exiting"""
+    print("""No mode for PME selected. Please select either -autoguess, -peakbagging, -plot, or -output.""")
+    print("""Exiting""")
     sys.exit()
 

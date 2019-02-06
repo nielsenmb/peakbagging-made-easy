@@ -236,23 +236,23 @@ def mode_splitting_parameterization(fit_dict = None, settings = None, plist = Fa
         ts = np.zeros(max(fit_dict['fit']['enns'])+1)
 
         for i, n in enumerate(range(max(fit_dict['fit']['enns'])+1)):
-            ts[i] = fit_dict['fit'][key]['init_guess'][np.where(fit_dict['fit']['enns'] == n)[0][len(np.where(fit_dict['fit']['enns'] == n)[0])/2]]
+            ts[i] = fit_dict['fit'][key]['init_guess'][np.where(fit_dict['fit']['enns'] == n)[0][int(len(np.where(fit_dict['fit']['enns'] == n)[0])/2)]]
 
         fit_dict['fit'][key]['init_guess'] = np.array(ts)
 
         fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_share_n
-
- 	spread, zero_check, relative  = 9999, True, False
+        
+        spread, zero_check, relative  = 9999, True, False
 
     if settings.split == 'share_l':
 	# Setting initial guesses such that modes with same ell have the same splittings
         ts = np.zeros(max(fit_dict['fit']['ells'])+1)
 
         for i, l in enumerate(np.arange(int(max(fit_dict['fit']['ells'])+1))):
-            ts[i] = fit_dict['fit'][key]['init_guess'][np.where(fit_dict['fit']['ells'] == l)[0][len(np.where(fit_dict['fit']['ells'] == l)[0])/2]]
+            ts[i] = fit_dict['fit'][key]['init_guess'][np.where(fit_dict['fit']['ells'] == l)[0][int(len(np.where(fit_dict['fit']['ells'] == l)[0])/2)]]
         fit_dict['fit'][key]['init_guess'] = np.array(ts)
-
-	fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_share_l
+        
+        fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_share_l
 
         spread, zero_check, relative  = 9999, True, False
 
@@ -267,9 +267,11 @@ def mode_splitting_parameterization(fit_dict = None, settings = None, plist = Fa
         fit_dict['fit'][key]['init_guess'] = np.array([np.mean(fit_dict['fit'][key]['init_guess']), 1e-3])
 
         fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_a_coeff
-
-	if settings.splits_u_lims == [5]: settings.splits_u_lims = [ 10.0,  10.0]
-   	if settings.splits_l_lims == [0]: settings.splits_l_lims = [-10.0, -10.0]
+        
+        if settings.splits_u_lims == [5]: 
+            settings.splits_u_lims = [ 10.0,  10.0]
+        if settings.splits_l_lims == [0]: 
+            settings.splits_l_lims = [-10.0, -10.0]
 
         spread, zero_check, relative  = settings.mcmc_sprd, False, False
 
@@ -284,9 +286,11 @@ def mode_splitting_parameterization(fit_dict = None, settings = None, plist = Fa
         fit_dict['fit'][key]['init_guess'] = np.array([np.mean(fit_dict['fit'][key]['init_guess']),1e-3, 1e-3])
 
         fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_a_coeff_all
-
-   	if settings.splits_u_lims == [5]: settings.splits_u_lims = [ 10.0,  10.0, 10.0]
-        if settings.splits_l_lims == [0]: settings.splits_l_lims = [-10.0, -10.0,-10.0]
+        
+        if settings.splits_u_lims == [5]: 
+            settings.splits_u_lims = [ 10.0,  10.0, 10.0]
+        if settings.splits_l_lims == [0]: 
+            settings.splits_l_lims = [-10.0, -10.0,-10.0]
 
         spread, zero_check, relative  = settings.mcmc_sprd, False, False
 
@@ -302,8 +306,10 @@ def mode_splitting_parameterization(fit_dict = None, settings = None, plist = Fa
 
         fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_a_coeff_all_poly
 
-        if settings.splits_u_lims == [5]: settings.splits_u_lims = [10.0 ,  10.0, 10.0, 0.1]
-        if settings.splits_l_lims == [0]: settings.splits_l_lims = [-10.0, -10.0,-10.0,-0.1]
+        if settings.splits_u_lims == [5]: 
+            settings.splits_u_lims = [10.0 ,  10.0, 10.0, 0.1]
+        if settings.splits_l_lims == [0]: 
+            settings.splits_l_lims = [-10.0, -10.0,-10.0,-0.1]
 
         spread, zero_check, relative  = settings.mcmc_sprd, False, False
 
@@ -319,8 +325,10 @@ def mode_splitting_parameterization(fit_dict = None, settings = None, plist = Fa
 
         fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_a_coeff_all_a2lin
 
-        if settings.splits_u_lims == [5]: settings.splits_u_lims = [ 10.0,  2.e-4, 0.1] #upper limit for a1a2a3 at 1mHz: 10,.1, and .1 .uHz
-        if settings.splits_l_lims == [0]: settings.splits_l_lims = [-10.0, -2.e-4,-0.1] #lower limit at -10,-0.1, and .1 uHz
+        if settings.splits_u_lims == [5]: 
+            settings.splits_u_lims = [ 10.0,  2.e-4, 0.1] #upper limit for a1a2a3 at 1mHz: 10,.1, and .1 .uHz
+        if settings.splits_l_lims == [0]: 
+            settings.splits_l_lims = [-10.0, -2.e-4,-0.1] #lower limit at -10,-0.1, and .1 uHz
 
         spread, zero_check, relative = [0.2,2.0,2.0], False, False
 
@@ -339,9 +347,11 @@ def mode_splitting_parameterization(fit_dict = None, settings = None, plist = Fa
         fit_dict['fit'][key]['init_guess'] = np.array([np.mean(fit_dict['fit'][key]['init_guess']), np.mean(fit_dict['fit'][key]['init_guess'])])
 
         fit_dict['fit'][key]['unpack_func'] = unpack_mode_splitting_radial_step_profile
-
-    	if settings.splits_u_lims == [5]: settings.splits_u_lims = [15 ,  15]
-    	if settings.splits_l_lims == [0]: settings.splits_l_lims = [-15, -15]
+        
+        if settings.splits_u_lims == [5]: 
+            settings.splits_u_lims = [15 ,  15]
+        if settings.splits_l_lims == [0]: 
+            settings.splits_l_lims = [-15, -15]
 
         spread, zero_check, relative  = settings.mcmc_sprd, False, False
 
@@ -358,7 +368,7 @@ def mode_splitting_parameterization(fit_dict = None, settings = None, plist = Fa
 
 
 
-### ANCILLARY FUNCTIONS ###
+### Extra FUNCTIONS ###
 
 def get_a_coeffs(fit_dict):
     """
